@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sen uchun osmon</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Manrope:wght@400;500&display=swap">
+<style>
+:root{
+  --sky1:#1a1440; --sky2:#0d0b24; --ink:#f4eeff; --muted:#b9acd9;
+  --star:#ffd36e; --love:#ff7a9c; --panel:rgba(255,255,255,.08);
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){--sky1:#ffd9e4; --sky2:#c9b8f5; --ink:#2a1f4d; --muted:#5b4b8a; --star:#e08a00; --love:#d6285a; --panel:rgba(255,255,255,.55);}
+}
+:root[data-theme="light"]{--sky1:#ffd9e4; --sky2:#c9b8f5; --ink:#2a1f4d; --muted:#5b4b8a; --star:#e08a00; --love:#d6285a; --panel:rgba(255,255,255,.55);}
+:root[data-theme="dark"]{--sky1:#1a1440; --sky2:#0d0b24; --ink:#f4eeff; --muted:#b9acd9; --star:#ffd36e; --love:#ff7a9c; --panel:rgba(255,255,255,.08);}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--ink);font-family:Manrope,system-ui,sans-serif;line-height:1.6;
+  background:linear-gradient(180deg,var(--sky1),var(--sky2)) fixed;background-color:var(--sky2);overflow-x:hidden}
+.screen{display:none;max-width:640px;margin:0 auto;padding:28px 20px 40px;text-align:center}
+.screen.show{display:block}
+.ask{min-height:80vh;display:none;flex-direction:column;align-items:center;justify-content:center}
+.ask.show{display:flex}
+h1{font-family:Caveat,cursive;font-size:clamp(48px,13vw,84px);line-height:1;margin:12px 0 8px;font-weight:700}
+.q{font-family:Caveat,cursive;font-size:clamp(44px,12vw,76px);line-height:1.05;margin:0 0 28px;font-weight:700}
+.sub{color:var(--muted);margin:0 auto;max-width:34ch}
+.days{margin:20px auto 0;font-family:Caveat,cursive;font-size:26px;color:var(--love)}
+.sky{position:relative;height:min(62vh,440px);margin:20px 0 10px;border-radius:28px;background:var(--panel);overflow:hidden}
+.star{position:absolute;width:48px;height:48px;margin:-24px 0 0 -24px;border:0;background:none;cursor:pointer;padding:0;color:var(--muted)}
+.star svg{width:100%;height:100%;transition:transform .35s,color .35s,filter .35s}
+.star:hover svg{transform:scale(1.2)}
+.star:focus-visible{outline:2px solid var(--star);outline-offset:2px;border-radius:50%}
+.star.on{color:var(--star)}
+.star.on svg{filter:drop-shadow(0 0 8px var(--star))}
+.star:not(.on){animation:tw 3.2s ease-in-out infinite}
+.star:nth-child(2n):not(.on){animation-delay:1.1s}
+.star:nth-child(3n):not(.on){animation-delay:2s}
+@keyframes tw{50%{opacity:.45}}
+.msg{min-height:110px;padding:18px 20px;border-radius:20px;background:var(--panel);display:flex;align-items:center;justify-content:center}
+.msg p{margin:0;font-family:Caveat,cursive;font-size:clamp(24px,6vw,32px);line-height:1.25}
+.count{color:var(--muted);font-size:14px;margin:12px 0 0}
+.btns{display:flex;gap:16px;justify-content:center;align-items:center;min-height:52px}
+button.cta{font:inherit;font-weight:500;padding:12px 30px;border-radius:999px;border:0;background:var(--love);color:#fff;cursor:pointer}
+button.no{background:var(--panel);color:var(--ink)}
+button.cta:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+button.fled{position:fixed;z-index:5;transition:left .25s,top .25s}
+.say{font-family:Caveat,cursive;font-size:clamp(30px,8vw,46px);line-height:1.15;margin:0 0 26px;min-height:1.2em;color:var(--love)}
+.heart{position:fixed;bottom:-30px;pointer-events:none;color:var(--love);animation:up 3.4s ease-out forwards}
+@keyframes up{to{transform:translateY(-110vh) rotate(20deg);opacity:0}}
+@media (prefers-reduced-motion:reduce){.star:not(.on){animation:none}.heart{animation-duration:.01s}button.fled{transition:none}}
+</style>
+</head>
+<body>
+
+<!-- 1-sahifa: kirish savoli -->
+<main class="ask show" id="gate">
+  <p class="sub" id="to"></p>
+  <h1 class="q">Meni sevasanmi?</h1>
+  <p class="say" id="gsay"></p>
+  <div class="btns"><button class="cta" id="gyes">Ha</button><button class="cta no" id="gno">Yo'q</button></div>
+</main>
+
+<!-- 2-sahifa: yulduzlar osmoni -->
+<main class="screen" id="skyPage">
+  <h1>Sen uchun osmon</h1>
+  <p class="sub">Har bir yulduz ichida senga aytmoqchi bo'lgan bitta sabab yashiringan. Bosib ko'r.</p>
+  <div class="days" id="days"></div>
+  <div class="sky" id="sky" aria-label="Yulduzlar osmoni"></div>
+  <div class="msg" aria-live="polite"><p id="text">Birinchi yulduzni tanla.</p></div>
+  <p class="count" id="count"></p>
+</main>
+
+<!-- 3-sahifa: yakuniy savol -->
+<main class="ask" id="final">
+  <h1 class="q">Meni hali ham sevasanmi?</h1>
+  <p class="say" id="fsay"></p>
+  <div class="btns" id="fbtns"><button class="cta" id="fyes">Ha</button><button class="cta no" id="fno">Yo'q</button></div>
+</main>
+
+<script>
+// ===== Shu yerni o'zingizga moslang =====
+var NAME = "Go'zal qiz";
+var START = "2025-01-01";         // birga bo'lgan kuningiz (YYYY-OY-KUN)
+var REASONS = [
+  "Kulganingda butun kun yorishib ketadi.",
+  "Yoningda o'zim bo'lib qolaman.",
+  "Eng oddiy kunni ham bayramga aylantirasan.",
+  "Seni ko'zlaringdagi porlayotgan yulduzni sevaman.",
+  "Ovozingni eshitsam, hamma narsa joyiga tushadi.",
+  "Sen bilan kelajak haqida o'ylash menga yoqadi.",
+  "Qaysarliging ham menga yoqadi.",
+  "Sen borsan, men baxtliman."
+];
+var POS = [[16,22],[42,12],[74,20],[28,52],[58,44],[84,56],[20,82],[62,80]];
+// =========================================
+function $(id){return document.getElementById(id)}
+function show(el){document.querySelectorAll('.screen,.ask').forEach(function(s){s.classList.remove('show')});el.classList.add('show');window.scrollTo(0,0)}
+function hearts(n){for(var i=0;i<n;i++){var h=document.createElement('span');h.className='heart';h.textContent='♥';
+  h.style.left=Math.random()*100+'vw';h.style.fontSize=(16+Math.random()*26)+'px';h.style.animationDelay=(Math.random()*1.2)+'s';
+  document.body.appendChild(h);setTimeout(function(x){x.remove()},5000,h);}}
+
+// "Yo'q" tugmasi: ushlab bo'lmaydi
+function runaway(btn, onTry){
+  var tries=0;
+  function flee(px,py){
+    btn.classList.add('fled');
+    var w=btn.offsetWidth,h=btn.offsetHeight,x,y,k=0;
+    do{
+      x=12+Math.random()*(innerWidth-w-24); y=12+Math.random()*(innerHeight-h-24); k++;
+    }while(k<12 && Math.hypot(x+w/2-px,y+h/2-py)<150);
+    btn.style.left=x+'px'; btn.style.top=y+'px';
+  }
+  btn.addEventListener('pointerenter',function(e){ if(e.pointerType==='mouse') flee(e.clientX,e.clientY); });
+  btn.addEventListener('pointerdown',function(e){ e.preventDefault(); tries++; onTry(tries); flee(e.clientX,e.clientY); });
+  btn.addEventListener('click',function(e){ if(e.detail===0){ tries++; onTry(tries); flee(innerWidth/2,innerHeight/2); } });
+}
+
+$('to').textContent = NAME + ", bu sahifa faqat sen uchun";
+
+// 1-sahifa
+runaway($('gno'),function(n){ $('gsay').textContent = n<2 ? "Yo'q tugmasi ishlamayapti" : "Ha ni bos, ishonaman"; });
+$('gyes').onclick=function(){ show($('skyPage')); hearts(6); };
+
+// 2-sahifa
+var d=Math.floor((Date.now()-new Date(START).getTime())/864e5);
+$('days').textContent = d>0 ? "Birga bo'lganimizga "+d+" kun bo'ldi" : "";
+var SVG='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.6 7.1.7-5.4 4.8 1.6 7L12 17.3 5.8 21l1.6-7L2 9.3l7.1-.7z"/></svg>';
+var found=0;
+function upd(){ $('count').textContent=found+" / "+REASONS.length+" yulduz topildi"; }
+REASONS.forEach(function(r,i){
+  var b=document.createElement('button');b.className='star';b.innerHTML=SVG;
+  b.style.left=POS[i][0]+'%';b.style.top=POS[i][1]+'%';b.setAttribute('aria-label',(i+1)+"-yulduz");
+  b.onclick=function(){
+    $('text').textContent=r;
+    if(!b.classList.contains('on')){
+      b.classList.add('on');found++;upd();hearts(3);
+      if(found===REASONS.length) setTimeout(function(){ show($('final')); },2600);
+    }
+  };
+  $('sky').appendChild(b);
+});
+upd();
+
+// 3-sahifa
+var FMSG=["Yo'q deyish mumkin emas","Baribir tutolmaysan","Sen meni sevasan"];
+runaway($('fno'),function(n){ $('fsay').textContent = FMSG[Math.min(n,3)-1]; });
+$('fyes').onclick=function(){
+  $('fsay').textContent="Bilardim, men ham seni sevaman";
+  $('fbtns').style.display='none'; $('fno').style.display='none';
+  hearts(50); setTimeout(function(){hearts(30)},1600);
+};
+</script>
+</body>
+</html>
